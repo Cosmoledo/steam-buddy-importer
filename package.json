@@ -1,0 +1,52 @@
+{
+	"author": "Cosmoledo",
+	"babel": {
+		"plugins": [
+			["@babel/transform-runtime"]
+		],
+		"presets": ["@babel/preset-env"]
+	},
+	"bin": "./lib/index.js",
+	"dependencies": {
+		"chalk": "^4.1.1",
+		"cli-progress": "^3.9.0",
+		"inquirer": "^8.1.0",
+		"jimp": "^0.16.1",
+		"pretty-bytes": "^5.6.0",
+		"string-similarity": "^4.0.4",
+		"strip-ansi": "^6.0.0",
+		"yaml": "^1.10.2"
+	},
+	"description": "",
+	"devDependencies": {
+		"@babel/cli": "^7.14.5",
+		"@babel/core": "^7.14.5",
+		"@babel/plugin-transform-runtime": "^7.14.5",
+		"@babel/preset-env": "^7.14.5",
+		"@types/cli-progress": "^3.9.1",
+		"@types/inquirer": "^7.3.1",
+		"@types/node": "^15.12.2",
+		"@types/string-similarity": "^4.0.0",
+		"@typescript-eslint/eslint-plugin": "^4.26.1",
+		"@typescript-eslint/parser": "^4.26.1",
+		"eslint": "^7.28.0",
+		"nodemon": "^2.0.7",
+		"pkg": "^5.2.1",
+		"typescript": "^4.3.2"
+	},
+	"license": "ISC",
+	"main": "./src/index.js",
+	"name": "steam-buddy-importer",
+	"pkg": {
+		"assets": ["./node_modules/@jimp/plugin-print/fonts/**/*"],
+		"targets": ["node12-linux-x64", "node12-macos-x64", "node12-win-x64"]
+	},
+	"scripts": {
+		"build": "babel src -d lib && pkg --compress GZip .",
+		"clean": "rm -r -f lib && rm -r -f logs && rm -f steam-buddy-importer*",
+		"dev-run": "nodemon ./src/index.js",
+		"dev-tsc": "tsc -w"
+	},
+	"type": "module",
+	"version": "1.0.0"
+}

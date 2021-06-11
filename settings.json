@@ -1,0 +1,11 @@
+{
+	"folders": {
+		"input": "./in",
+		"output": "./dist",
+		"steam_buddy": "/home/gamer/.local/share/steam-buddy"
+	},
+	"imageExtensions": [".jpg", ".jpeg", ".png"],
+	"log": {
+		"filename": "./logs/{timestamp}.log"
+	}
+}

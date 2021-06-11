@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Ignores compiled TypeScript files
+src/**/*.map
+src/**/*.js
