@@ -106,3 +106,7 @@ dist
 # Ignores compiled TypeScript files
 src/**/*.map
 src/**/*.js
+
+binaries/
+in/
+lib/

@@ -38,6 +38,7 @@ export const MAIN_MENU_OPTIONS = [
 	"Build folder structure",
 ];
 
+// Load all platforms and categories
 const platforms = {
 	invalid: ([] as string[]),
 	valid: ([] as string[]),
@@ -51,6 +52,7 @@ fs.readdirSync(SETTINGS.folders.input)
 			platforms.invalid.push(folder);
 	});
 
+// Log invalid platforms
 if (platforms.invalid.length > 0) {
 	Logger.all(chalk.red(`Folder${plural(platforms.invalid.length, "")} ${chalk.green(platforms.invalid.join(chalk.red(", ")))} ${plural(platforms.invalid.length, "is", "are")} not a platform.`));
 	Logger.all(chalk.yellow("Look at ") + chalk.green("src/Platforms.ts") + chalk.yellow(". Maybe you just need to rename the folder.\n"));
@@ -58,6 +60,7 @@ if (platforms.invalid.length > 0) {
 
 export const longestPlatform = getLongestString(platforms.valid.map(s => SUPPORTED_PLATFORMS[s]));
 
+// Load platforms and find roms and images
 const foundPlatforms: Platforms = {};
 
 platforms.valid
@@ -83,6 +86,7 @@ platforms.valid
 
 Logger.all();
 
+// Match roms with images
 const pairs: Pairs = {};
 
 const bar = getProgressBar("Matching files");
@@ -95,28 +99,40 @@ for (const platform in foundPlatforms) {
 		pairs[platform] = [];
 
 	const images = element.images.map(img => path.parse(img).name.toLowerCase());
-	bar.setTotal(bar.getTotal() + images.length);
+	const imagesIndexed: [string, number][] = images.map((img, index) => [img, index]);
+	bar.setTotal(bar.getTotal() + (images.length === 0 ? 0 : element.roms.length));
 
 	element.roms.forEach(rom => {
-		const name = path.parse(rom).name;
+		let name = path.parse(rom).name;
 
 		const entry: RomPair = {
 			rom,
 			name,
 		};
 
+		name = name.toLowerCase();
+
 		if (images.length > 0) {
-			entry.images = stringSimilarity.findBestMatch(name.toLowerCase(), images).ratings
-				.map((match, index) => ({
-					name: element.images[index],
-					rating: match.rating
-				}))
-				.filter(match => match.rating > 0.4)
-				.sort((m1, m2) => m2.rating - m1.rating);
+			const exact = imagesIndexed.find(indexed => indexed[0] === name);
+			if (exact)
+				entry.images = [{
+					name: element.images[exact[1]],
+					rating: 1,
+				}];
+			else {
+				entry.images = stringSimilarity.findBestMatch(name, images).ratings
+					.map((match, index) => ({
+						name: element.images[index],
+						rating: match.rating
+					}))
+					.filter(match => match.rating > 0.4)
+					.sort((m1, m2) => m2.rating - m1.rating);
 
-			if (entry.images.length > 0 && entry.images[0].rating === 1)
-				entry.images = [entry.images[0]];
+				const bestMatch = entry.images.filter(match => match.rating === 1);
 
+				if (bestMatch.length === 1)
+					entry.images = [bestMatch[0]];
+			}
 			bar.increment();
 		}
 
@@ -126,6 +142,7 @@ for (const platform in foundPlatforms) {
 
 bar.stop();
 
+// Get input from user, what he wants to do
 prompt([{
 	type: "rawlist",
 	name: "action",

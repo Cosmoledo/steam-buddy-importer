@@ -91,7 +91,8 @@ function transferFiles(pairs: Pairs, copyData: boolean) {
 			romPairs.forEach(romPair => {
 				const srcImage = path.join(SETTINGS.folders.input, platform, (romPair.images as RomPairImage[])[0].name);
 
-				fs.unlinkSync(srcImage);
+				if (fs.existsSync(srcImage))
+					fs.unlinkSync(srcImage);
 			});
 
 		(bar as any).stop(false);

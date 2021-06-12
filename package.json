@@ -39,6 +39,7 @@
 	"name": "steam-buddy-importer",
 	"pkg": {
 		"assets": ["./node_modules/@jimp/plugin-print/fonts/**/*"],
+		"outputPath": "binaries",
 		"targets": ["node12-linux-x64", "node12-macos-x64", "node12-win-x64"]
 	},
 	"scripts": {
@@ -48,5 +49,5 @@
 		"dev-tsc": "tsc -w"
 	},
 	"type": "module",
-	"version": "1.0.0"
+	"version": "1.0.1"
 }

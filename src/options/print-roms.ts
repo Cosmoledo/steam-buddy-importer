@@ -35,15 +35,15 @@ export function start(pairs: Pairs): void {
 
 		romPairs.forEach(romPair => {
 			if (isComleteRoomPair(romPair))
-				Logger.all(chalk.bgGreen("    ") + " " + chalk.cyan(romPair.rom.padEnd(maxRomName, " ")) + " | " + chalk.magenta((romPair.images as RomPairImage[])[0].name));
+				Logger.all(chalk.bgGreen("   ") + " " + chalk.cyan(romPair.rom.padEnd(maxRomName, " ")) + " | " + chalk.magenta((romPair.images as RomPairImage[])[0].name));
 			else if (romPair.images && romPair.images.length > 0) {
-				Logger.all(chalk.bgYellow("    ") + " " + chalk.cyan(romPair.rom));
+				Logger.all(chalk.bgYellow("   ") + " " + chalk.cyan(romPair.rom));
 
 				romPair.images.forEach(imagePair => {
-					Logger.all(chalk.bgYellow("    ") + " " + " ".repeat(maxRomName) + " | " + (imagePair.rating * 100).toFixed(2).padStart(5, " ") + "% " + chalk.magenta(imagePair.name));
+					Logger.all(chalk.bgYellow("   ") + " " + " ".repeat(maxRomName) + " | " + (imagePair.rating * 100).toFixed(2).padStart(5, " ") + "% " + chalk.magenta(imagePair.name));
 				});
 			} else
-				Logger.all(chalk.bgRed("    ") + " " + chalk.cyan(romPair.rom));
+				Logger.all(chalk.bgRed("   ") + " " + chalk.cyan(romPair.rom));
 		});
 
 		Logger.all();
@@ -80,33 +80,45 @@ export function start(pairs: Pairs): void {
 		const bar = getProgressBar("Generating images");
 		bar.start(0, 0);
 
-		let done = 0;
-		let total = 0;
+		const files: string[][] = [];
+		for (const platform in pairs)
+			files.push(...pairs[platform]
+				.filter(romPair => {
+					if (isComleteRoomPair(romPair))
+						return false;
 
-		for (const platform in pairs) {
-			const tobeGenerated = pairs[platform].filter(romPair => {
-				if (isComleteRoomPair(romPair))
-					return false;
+					const red = !romPair.images || romPair.images.length === 0;
 
-				const red = !romPair.images || romPair.images.length === 0;
+					return generate === 1 ? red : true;
+				})
+				.map(romPair => [platform, romPair.name])
+			);
 
-				return generate === 1 ? red : true;
-			});
+		bar.setTotal(files.length);
 
-			total += tobeGenerated.length;
-			bar.setTotal(total);
+		let worker = 200;
 
-			tobeGenerated.forEach(async romPair => {
-				const dst = path.join(SETTINGS.folders.input, platform, romPair.name + ".png");
+		function start() {
+			if (files.length === 0) {
+				worker--;
+				if (worker === 0)
+					bar.stop();
+				return;
+			}
 
-				generateImage(formatRomName(romPair.name), dst, () => {
-					bar.increment();
-					done++;
+			const index = Math.random() * files.length | 0;
+			const [platform, name] = files[index];
+			files.splice(index, 1);
 
-					if (total === done)
-						bar.stop();
-				});
+			const dst = path.join(SETTINGS.folders.input, platform, name + ".png");
+
+			generateImage(formatRomName(name), dst, () => {
+				bar.increment();
+				start();
 			});
 		}
+
+		for (let i = 0; i < worker; i++)
+			start();
 	});
 }

@@ -1,3 +1,6 @@
+import {
+	Font
+} from "@jimp/plugin-print";
 import chalk from "chalk";
 import cliProgress from "cli-progress";
 import inquirer from "inquirer";
@@ -63,10 +66,13 @@ export const isMissingImages = (pairs: Pairs): boolean => {
 	return false;
 };
 
+let font: Font;
+Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then(a => font = a);
+
 export const generateImage = (text: string, path: string, cb: () => void): void => {
-	new Jimp(256, 256, "black", async (_err, image) => {
+	new Jimp(256, 256, "black", (_err, image) => {
 		image.print(
-			await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE),
+			font,
 			0,
 			0, {
 				text,
