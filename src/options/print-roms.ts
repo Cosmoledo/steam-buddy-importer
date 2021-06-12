@@ -4,11 +4,11 @@ import chalk from "chalk";
 
 import {
 	formatRomName,
-	generateImage,
+	generateBanner,
 	getLongestString,
 	getProgressBar,
 	isComleteRoomPair,
-	isMissingImages,
+	isMissingBanners,
 	prompt,
 } from "../methods.js";
 import {
@@ -17,7 +17,7 @@ import {
 } from "../index.js";
 import {
 	Pairs,
-	RomPairImage,
+	RomPairBanner,
 } from "../../index.js";
 import {
 	SUPPORTED_PLATFORMS,
@@ -35,12 +35,12 @@ export function start(pairs: Pairs): void {
 
 		romPairs.forEach(romPair => {
 			if (isComleteRoomPair(romPair))
-				Logger.all(chalk.bgGreen("   ") + " " + chalk.cyan(romPair.rom.padEnd(maxRomName, " ")) + " | " + chalk.magenta((romPair.images as RomPairImage[])[0].name));
-			else if (romPair.images && romPair.images.length > 0) {
+				Logger.all(chalk.bgGreen("   ") + " " + chalk.cyan(romPair.rom.padEnd(maxRomName, " ")) + " | " + chalk.magenta((romPair.banners as RomPairBanner[])[0].name));
+			else if (romPair.banners && romPair.banners.length > 0) {
 				Logger.all(chalk.bgYellow("   ") + " " + chalk.cyan(romPair.rom));
 
-				romPair.images.forEach(imagePair => {
-					Logger.all(chalk.bgYellow("   ") + " " + " ".repeat(maxRomName) + " | " + (imagePair.rating * 100).toFixed(2).padStart(5, " ") + "% " + chalk.magenta(imagePair.name));
+				romPair.banners.forEach(bannerPair => {
+					Logger.all(chalk.bgYellow("   ") + " " + " ".repeat(maxRomName) + " | " + (bannerPair.rating * 100).toFixed(2).padStart(5, " ") + "% " + chalk.magenta(bannerPair.name));
 				});
 			} else
 				Logger.all(chalk.bgRed("   ") + " " + chalk.cyan(romPair.rom));
@@ -49,12 +49,12 @@ export function start(pairs: Pairs): void {
 		Logger.all();
 	}
 
-	if (isMissingImages(pairs)) {
-		Logger.all(chalk.red("You are missing images."));
+	if (isMissingBanners(pairs)) {
+		Logger.all(chalk.red("You are missing banners."));
 		Logger.all(chalk.yellow("You need all green (100% filename match) to proceed to the next step."));
 		Logger.all();
 	} else {
-		Logger.all(chalk.green("No image is missing. Congratulations"));
+		Logger.all(chalk.green("No banner is missing. Congratulations"));
 		Logger.all();
 		return;
 	}
@@ -68,7 +68,7 @@ export function start(pairs: Pairs): void {
 	prompt([{
 		type: "rawlist",
 		name: "generate",
-		message: "Generate missing images?",
+		message: "Generate missing banners?",
 		choices,
 		filter: (val) => choices.indexOf(val),
 	}]).then(async ({
@@ -77,7 +77,7 @@ export function start(pairs: Pairs): void {
 		if (generate === 0)
 			return;
 
-		const bar = getProgressBar("Generating images");
+		const bar = getProgressBar("Generating banners");
 		bar.start(0, 0);
 
 		const files: string[][] = [];
@@ -87,7 +87,7 @@ export function start(pairs: Pairs): void {
 					if (isComleteRoomPair(romPair))
 						return false;
 
-					const red = !romPair.images || romPair.images.length === 0;
+					const red = !romPair.banners || romPair.banners.length === 0;
 
 					return generate === 1 ? red : true;
 				})
@@ -96,7 +96,7 @@ export function start(pairs: Pairs): void {
 
 		bar.setTotal(files.length);
 
-		let worker = 200;
+		let worker = Math.min(files.length, 200);
 
 		function start() {
 			if (files.length === 0) {
@@ -112,7 +112,7 @@ export function start(pairs: Pairs): void {
 
 			const dst = path.join(SETTINGS.folders.input, platform, name + ".png");
 
-			generateImage(formatRomName(name), dst, () => {
+			generateBanner(formatRomName(name), dst, () => {
 				bar.increment();
 				start();
 			});

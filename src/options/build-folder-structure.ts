@@ -7,7 +7,7 @@ import YAML from "yaml";
 
 import {
 	getProgressBar,
-	isMissingImages,
+	isMissingBanners,
 	prompt,
 } from "../methods.js";
 import {
@@ -18,7 +18,7 @@ import {
 } from "../index.js";
 import {
 	Pairs,
-	RomPairImage,
+	RomPairBanner,
 	YAMLEntry,
 } from "../../index.js";
 import {
@@ -37,8 +37,8 @@ function calcFileSize(pairs: Pairs) {
 export function start(pairs: Pairs): void {
 	const size = calcFileSize(pairs);
 
-	if (isMissingImages(pairs)) {
-		Logger.all(chalk.red("Some ROMs do not have an image. Please run ") + chalk.green(MAIN_MENU_OPTIONS[0]) + chalk.red(" first."));
+	if (isMissingBanners(pairs)) {
+		Logger.all(chalk.red("Some ROMs do not have a banner. Please run ") + chalk.green(MAIN_MENU_OPTIONS[0]) + chalk.red(" first."));
 		return;
 	}
 
@@ -60,12 +60,12 @@ function transferFiles(pairs: Pairs, copyData: boolean) {
 		const romPairs = pairs[platform];
 
 		const dstRom = path.join(SETTINGS.folders.output, "steam-buddy", "content", platform);
-		const dstImage = path.join(SETTINGS.folders.output, "steam-buddy", "banners", platform);
+		const dstBanner = path.join(SETTINGS.folders.output, "steam-buddy", "banners", platform);
 
 		fs.mkdirSync(dstRom, {
 			recursive: true
 		});
-		fs.mkdirSync(dstImage, {
+		fs.mkdirSync(dstBanner, {
 			recursive: true
 		});
 
@@ -75,9 +75,9 @@ function transferFiles(pairs: Pairs, copyData: boolean) {
 
 		romPairs.forEach(romPair => {
 			const srcRom = path.join(SETTINGS.folders.input, platform, romPair.rom);
-			const srcImage = path.join(SETTINGS.folders.input, platform, (romPair.images as RomPairImage[])[0].name);
+			const srcBanner = path.join(SETTINGS.folders.input, platform, (romPair.banners as RomPairBanner[])[0].name);
 
-			fs.copyFileSync(srcImage, path.join(dstImage, (romPair.images as RomPairImage[])[0].name));
+			fs.copyFileSync(srcBanner, path.join(dstBanner, (romPair.banners as RomPairBanner[])[0].name));
 
 			if (copyData)
 				fs.copyFileSync(srcRom, path.join(dstRom, romPair.rom));
@@ -89,10 +89,10 @@ function transferFiles(pairs: Pairs, copyData: boolean) {
 
 		if (!copyData)
 			romPairs.forEach(romPair => {
-				const srcImage = path.join(SETTINGS.folders.input, platform, (romPair.images as RomPairImage[])[0].name);
+				const srcBanner = path.join(SETTINGS.folders.input, platform, (romPair.banners as RomPairBanner[])[0].name);
 
-				if (fs.existsSync(srcImage))
-					fs.unlinkSync(srcImage);
+				if (fs.existsSync(srcBanner))
+					fs.unlinkSync(srcBanner);
 			});
 
 		(bar as any).stop(false);
@@ -110,7 +110,7 @@ function createYAML(pairs: Pairs) {
 
 	for (const platform in pairs) {
 		const entries: YAMLEntry[] = pairs[platform].map(romPair => ({
-			banner: `${SETTINGS.folders.steam_buddy}/banners/${platform}/${(romPair.images as RomPairImage[])[0].name}`,
+			banner: `${SETTINGS.folders.steam_buddy}/banners/${platform}/${(romPair.banners as RomPairBanner[])[0].name}`,
 			cmd: platform,
 			dir: `"${SETTINGS.folders.steam_buddy}/content/${platform}"`,
 			hidden: false,
@@ -119,6 +119,14 @@ function createYAML(pairs: Pairs) {
 			tags: [SUPPORTED_PLATFORMS[platform]],
 		}));
 
-		fs.writeFileSync(path.join(dst, `steam-buddy.${platform}.yaml`), YAML.stringify(entries));
+		const configFile = `steam-buddy.${platform}.yaml`;
+		const configFilePath = path.join(SETTINGS.folders.input, configFile);
+
+		if (fs.existsSync(configFilePath)) {
+			const existingROMs = YAML.parse(fs.readFileSync(configFilePath) + "");
+			entries.push(...existingROMs);
+		}
+
+		fs.writeFileSync(path.join(dst, configFile), YAML.stringify(entries));
 	}
 }

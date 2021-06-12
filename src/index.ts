@@ -34,7 +34,7 @@ export const SETTINGS = getSettings();
 export const Logger = getLogger();
 
 export const MAIN_MENU_OPTIONS = [
-	"Print ROMs and images",
+	"Print ROMs and banners",
 	"Build folder structure",
 ];
 
@@ -60,33 +60,33 @@ if (platforms.invalid.length > 0) {
 
 export const longestPlatform = getLongestString(platforms.valid.map(s => SUPPORTED_PLATFORMS[s]));
 
-// Load platforms and find roms and images
+// Load platforms and find roms and banners
 const foundPlatforms: Platforms = {};
 
 platforms.valid
 	.sort()
 	.forEach(platform => {
 		const content: FolderContent = {
-			images: [],
+			banners: [],
 			roms: [],
 		};
 
 		fs.readdirSync(path.join(SETTINGS.folders.input, platform))
 			.forEach(file => {
-				if (SETTINGS.imageExtensions.some(ext => path.extname(file) === ext))
-					content.images.push(file);
+				if (SETTINGS.bannerExtensions.some(ext => path.extname(file) === ext))
+					content.banners.push(file);
 				else
 					content.roms.push(file);
 			});
 
-		Logger.all(`Searched ${chalk.green(SUPPORTED_PLATFORMS[platform].padStart(longestPlatform, " "))} | ${chalk.cyan(content.roms.length.toString().padStart(4, " ") + " ROM" + plural(content.roms.length))} | ${chalk.magenta(content.images.length.toString().padStart(4, " ") + " Image" + plural(content.images.length))}`);
+		Logger.all(`Searched ${chalk.green(SUPPORTED_PLATFORMS[platform].padStart(longestPlatform, " "))} | ${chalk.cyan(content.roms.length.toString().padStart(4, " ") + " ROM" + plural(content.roms.length))} | ${chalk.magenta(content.banners.length.toString().padStart(4, " ") + " Banner" + plural(content.banners.length))}`);
 
 		foundPlatforms[platform] = content;
 	});
 
 Logger.all();
 
-// Match roms with images
+// Match roms with banners
 const pairs: Pairs = {};
 
 const bar = getProgressBar("Matching files");
@@ -98,9 +98,9 @@ for (const platform in foundPlatforms) {
 	if (!pairs[platform])
 		pairs[platform] = [];
 
-	const images = element.images.map(img => path.parse(img).name.toLowerCase());
-	const imagesIndexed: [string, number][] = images.map((img, index) => [img, index]);
-	bar.setTotal(bar.getTotal() + (images.length === 0 ? 0 : element.roms.length));
+	const banners = element.banners.map(banner => path.parse(banner).name.toLowerCase());
+	const bannerIndexed: [string, number][] = banners.map((banner, index) => [banner, index]);
+	bar.setTotal(bar.getTotal() + (banners.length === 0 ? 0 : element.roms.length));
 
 	element.roms.forEach(rom => {
 		let name = path.parse(rom).name;
@@ -112,26 +112,26 @@ for (const platform in foundPlatforms) {
 
 		name = name.toLowerCase();
 
-		if (images.length > 0) {
-			const exact = imagesIndexed.find(indexed => indexed[0] === name);
+		if (banners.length > 0) {
+			const exact = bannerIndexed.find(indexed => indexed[0] === name);
 			if (exact)
-				entry.images = [{
-					name: element.images[exact[1]],
+				entry.banners = [{
+					name: element.banners[exact[1]],
 					rating: 1,
 				}];
 			else {
-				entry.images = stringSimilarity.findBestMatch(name, images).ratings
+				entry.banners = stringSimilarity.findBestMatch(name, banners).ratings
 					.map((match, index) => ({
-						name: element.images[index],
+						name: element.banners[index],
 						rating: match.rating
 					}))
 					.filter(match => match.rating > 0.4)
 					.sort((m1, m2) => m2.rating - m1.rating);
 
-				const bestMatch = entry.images.filter(match => match.rating === 1);
+				const bestMatch = entry.banners.filter(match => match.rating === 1);
 
 				if (bestMatch.length === 1)
-					entry.images = [bestMatch[0]];
+					entry.banners = [bestMatch[0]];
 			}
 			bar.increment();
 		}

@@ -21,7 +21,7 @@ export const plural = (value: number, sin = " ", plu = "s"): string => value ===
 
 export const getLongestString = (array: string[]): number => array.map(s => s.length).sort((a, b) => a - b).pop() as number;
 
-export const isComleteRoomPair = (pair: RomPair): boolean => pair.images ? pair.images.length === 1 && pair.images[0].rating === 1 : false;
+export const isComleteRoomPair = (pair: RomPair): boolean => pair.banners ? pair.banners.length === 1 && pair.banners[0].rating === 1 : false;
 
 export const formatRomName = (name: string): string => name.replace(/(\(|\[).(\]|\))/g, "").trim();
 
@@ -55,7 +55,7 @@ export const getProgressBar = (title: string): cliProgress.SingleBar => {
 	return bar;
 };
 
-export const isMissingImages = (pairs: Pairs): boolean => {
+export const isMissingBanners = (pairs: Pairs): boolean => {
 	for (const platform in pairs) {
 		const content = pairs[platform];
 
@@ -69,9 +69,9 @@ export const isMissingImages = (pairs: Pairs): boolean => {
 let font: Font;
 Jimp.loadFont(Jimp.FONT_SANS_32_WHITE).then(a => font = a);
 
-export const generateImage = (text: string, path: string, cb: () => void): void => {
-	new Jimp(256, 256, "black", (_err, image) => {
-		image.print(
+export const generateBanner = (text: string, path: string, cb: () => void): void => {
+	new Jimp(256, 256, "black", (_err, banner) => {
+		banner.print(
 			font,
 			0,
 			0, {
@@ -79,11 +79,11 @@ export const generateImage = (text: string, path: string, cb: () => void): void 
 				alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
 				alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
 			},
-			image.bitmap.width,
-			image.bitmap.height
+			banner.bitmap.width,
+			banner.bitmap.height
 		);
 
-		image.write(path);
+		banner.write(path);
 		cb();
 	});
 };

@@ -6,18 +6,18 @@ export interface Setting_Folders {
 
 export interface Settings {
 	folders: Setting_Folders;
-	imageExtensions: string[];
+	bannerExtensions: string[];
 	log: {
 		filename: string;
 	};
 }
 
 export interface FolderContent {
-	images: string[];
+	banners: string[];
 	roms: string[];
 }
 
-export interface RomPairImage {
+export interface RomPairBanner {
 	name: string;
 	rating: number;
 }
@@ -25,7 +25,7 @@ export interface RomPairImage {
 export interface RomPair {
 	name: string;
 	rom: string;
-	images ? : RomPairImage[];
+	banners ? : RomPairBanner[];
 }
 
 export interface YAMLEntry {
