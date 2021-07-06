@@ -15,13 +15,13 @@ Import multiple ROMs easily into steam-buddy
 
 ## About
 
-This is a tool for [Steam Buddy](https://github.com/gamer-os/steam-buddy) which is implemented into [GamerOS](https://gamer-os.github.io/).
+This is a tool for [Steam Buddy](https://github.com/ChimeraOS/chimera) which is implemented into [ChimeraOS](https://chimeraos.org/), formerly known as GamerOS.
 
-> GamerOS is an operating system that provides an out of the box couch gaming experience. After installation, boot directly into Steam Big Picture and start playing your favorite games.
+> ChimeraOS is an operating system that provides an out of the box couch gaming experience. After installation, boot directly into Steam Big Picture and start playing your favorite games.
 
 > Steam Buddy is a web-based tool for installing non-Steam software to your Linux based couch gaming system. It was primarily developed for GamerOS.
 
-Steam Buddy allows you also to play ROMs within GamerOS. It has a really nice interface which gives you the option of uploading your ROMs. You can also give them nice logos. One missing feature is to upload multiple ROMs at once. This tool will do that for you.
+Steam Buddy allows you also to play ROMs within ChimeraOS. It has a really nice interface which gives you the option of uploading your ROMs. You can also give them nice logos. One missing feature is to upload multiple ROMs at once. This tool will do that for you.
 
 ## Usage
 

@@ -40,7 +40,7 @@
 	"pkg": {
 		"assets": ["./node_modules/@jimp/plugin-print/fonts/**/*"],
 		"outputPath": "binaries",
-		"targets": ["node12-linux-x64", "node12-macos-x64", "node12-win-x64"]
+		"targets": ["node16-linux-x64", "node16-macos-x64", "node16-win-x64"]
 	},
 	"scripts": {
 		"build": "babel src -d lib && pkg --compress GZip .",
